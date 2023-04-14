@@ -17,6 +17,10 @@ import {priceFormatter} from "../components/priceFormatter.js";
 import {truncateText} from "../components/truncateText.js";
 import {Container} from "@mui/material";
 import "../App.scss";
+import Modal from "@mui/material/Modal";
+import Button from "@mui/material/Button";
+
+import filteredItems from "../components/filteredItems.jsx";
 
 
 const HomePage = () => {
@@ -125,6 +129,23 @@ const HomePage = () => {
     maxHeight: '100%',
   });
 
+  // Для модального окна
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
+  const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+  };
+
   // Получение предметов с API через fetch (GET)
   useEffect(() => {
     fetch("https://exam.avavion.ru/api/services")
@@ -135,58 +156,15 @@ const HomePage = () => {
         }); // запись в массив всех предметов
   }, []);
 
+  // Для фильтрации по *скидке*
+  const [age, setAge] = React.useState('');
+
+  const handleChange = (event) => {
+    setAge(event.target.value);
+  };
+
   return (
-    <Container maxWidth="sm">
-      <div>
-        <form>
-          <input
-            onChange={(e) => onChangeForm(e)}
-            type="email"
-            name="email"
-            placeholder="E-mail"
-          />
-          <input
-            onChange={(e) => onChangeForm(e)}
-            type="text"
-            name="full_name"
-            placeholder="Your fullname"
-          />
-          <textarea
-            onChange={(e) => onChangeForm(e)}
-            name="message"
-            placeholder="enter a message"
-          ></textarea>
-
-          <select 
-            onChange={onChangeSelect.bind(this)}
-            name="service_id"
-          >
-            {items.map((item) => {
-              return (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              );
-            })}
-            
-          </select>
-
-          <button onClick={(e) => send(e)}>Send</button>
-        </form>
-      </div>
-
-      <input
-        type="text"
-        placeholder="search"
-        value={query}
-        // если в инпут вводится запрос, идет поиск
-        onChange={onChangeQuery.bind(this)}
-      />
-
-      {/*<button onClick={sortByPriceIncrease}>По возрастанию</button>*/}
-      {/*<button onClick={sortByPriceDecrease}>По возрастанию</button>*/}
-      {/*<button onClick={resetSort}>По возрастанию</button>*/}
-
+    <Container maxWidth="sm" sx={{display: 'grid', gap: '35px'}}>
       {/*ИСпользован Select с Material UI*/}
       <Box sx={{ minWidth: 120 }}>
         <FormControl fullWidth>
@@ -209,13 +187,80 @@ const HomePage = () => {
         </FormControl>
       </Box>
 
-      {/* Вывод предметов из useState массива */}
-      {/* Перебор через метод map */}
-      {/* Итерируем по одному item */}
+      {/*Делаем фильтрацию по *скидке* , дизайн с MUI*/}
+      <filteredItems/>
 
 
 
+      <Modal
+          className="modal_window"
+          open={open}
+          onClose={handleClose}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <Typography id="modal-modal-title" variant="h5" component="h2" className="form_article">
+            Заявка на услугу
+          </Typography>
+          <button
+              onClick={handleClose}
+              className="close_modal"
+          >X
+          </button>
+          <form className="request_form">
+            <input
+                onChange={(e) => onChangeForm(e)}
+                type="email"
+                name="email"
+                placeholder="E-mail"
+            />
+            <input
+                onChange={(e) => onChangeForm(e)}
+                type="text"
+                name="full_name"
+                placeholder="Your fullname"
+            />
+            <textarea
+                onChange={(e) => onChangeForm(e)}
+                name="message"
+                placeholder="enter a message"
+            ></textarea>
 
+            <select
+                onChange={onChangeSelect.bind(this)}
+                name="service_id"
+            >
+              {items.map((item) => {
+                return (
+                    <option key={item.id} value={item.id}>
+                      {item.name}
+                    </option>
+                );
+              })}
+
+            </select>
+
+            <button onClick={(e) => send(e)}>Send</button>
+          </form>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+          </Typography>
+        </Box>
+      </Modal>
+
+      <div className="modal-search">
+        <Button onClick={handleOpen}>Оставить заявку</Button>
+
+        <input
+            type="text"
+            placeholder="Поиск по сайту..."
+            value={query}
+            className="search"
+            // если в инпут вводится запрос, идет поиск
+            onChange={onChangeQuery.bind(this)}
+        />
+      </div>
 
 
 

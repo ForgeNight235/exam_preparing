@@ -32,6 +32,48 @@
   }
 }
 
+.request_form{
+  display: grid;
+  gap: 15px;
+
+  input, select, textarea{
+    padding: 10px 15px;
+    max-width: 400px;
+  }
+}
+
+.modal-search{
+  display: flex;
+  justify-content: space-between;
+}
+
+.container{
+  display: grid;
+}
+
+.search{
+  border: none;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 16px;
+  width: 250px;
+}
+
+.modal_window{
+  color: rgb(84, 84, 84);
+
+  .form_article{
+    padding-bottom: 35px;
+  }
+
+  .close_modal{
+    background: rgb(196, 50, 50);
+    position: absolute;
+    top: 15px;
+    right: 15px;
+  }
+}
+
 .card {
   padding: 2em;
 }
