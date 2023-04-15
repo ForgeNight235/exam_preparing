@@ -9,8 +9,8 @@ const Header = () => {
 
     return(
         <>
-            <h2>Header works</h2>
-
+            <h2 className="header_article">Flowers Store</h2>
+            <p className="header_alert">просматривайте версию для мобилки</p>
             <div>
             </div>
         </>

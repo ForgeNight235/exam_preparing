@@ -8,7 +8,9 @@ const Root = () => {
     <Header/>
     <Outlet/>
     <footer>
-        <h2>Footer</h2>
+        <h2 className="footer_article">
+          Footer
+        </h2>
     </footer>
     </>
   )

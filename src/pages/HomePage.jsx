@@ -72,10 +72,11 @@ const HomePage = ({onDataFiltered}) => {
   // Хранение данных в форме
   // По умолчанию пустые строки и первая услуга
   const [form, setForm] = useState({
-    email: "",
-    fullname: "",
+    full_name: "",
+    address: "",
     message: "",
-    service_id: 1, // must take id from onChangeSelect fn
+    product_id: 1,
+    email: "",
   });
 
   // Обработчик формы
@@ -120,7 +121,7 @@ const HomePage = ({onDataFiltered}) => {
       timer: 1500
     })
 
-    fetch("https://exam.avavion.ru/api/requests/create", {
+    fetch("https://flowers.avavion.ru/api/applications/create", {
       method: "POST",
       body: JSON.stringify(form),
       headers: {
@@ -150,7 +151,7 @@ const HomePage = ({onDataFiltered}) => {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 400,
+    width: 350,
     bgcolor: 'background.paper',
     border: '2px solid #000',
     boxShadow: 24,
@@ -159,7 +160,7 @@ const HomePage = ({onDataFiltered}) => {
 
   // Получение предметов с API через fetch (GET)
   useEffect(() => {
-    fetch("https://exam.avavion.ru/api/services")
+    fetch("https://flowers.avavion.ru/api/products")
         .then((response) => response.json()) // преобразование в json формат для чтения
         .then((data) => {
           setItems(data.data) // запись в основной массив
@@ -179,7 +180,7 @@ const HomePage = ({onDataFiltered}) => {
 
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-  const [selectedDiscount, setSelectedDiscount] = useState("");
+  const [selectedTag, setselectedTag] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
 
   useEffect(() => {
@@ -189,9 +190,9 @@ const HomePage = ({onDataFiltered}) => {
   useEffect(() => {
     // Фильтрация данных по выбранному проценту скидки и категории
     let filtered = data;
-    if (selectedDiscount) {
+    if (selectedTag) {
       filtered = filtered.filter(
-          (item) => item.discount_percent === selectedDiscount
+          (item) => item.tag === selectedTag
       );
     }
     if (selectedCategory) {
@@ -202,11 +203,11 @@ const HomePage = ({onDataFiltered}) => {
     setFilteredData(filtered);
     // Передача отфильтрованных данных наверх через callback
     onDataFiltered && onDataFiltered(filtered);
-  }, [selectedDiscount, selectedCategory, data, onDataFiltered]);
+  }, [selectedTag, selectedCategory, data, onDataFiltered]);
 
   const fetchData = async () => {
     try {
-      const response = await fetch("https://exam.avavion.ru/api/services");
+      const response = await fetch("https://flowers.avavion.ru/api/products");
       const jsonData = await response.json();
       setData(jsonData.data);
       setFilteredData(jsonData.data);
@@ -216,7 +217,7 @@ const HomePage = ({onDataFiltered}) => {
   };
 
   const handleDiscountChange = (event) => {
-    setSelectedDiscount(event.target.value);
+    setselectedTag(event.target.value);
   };
 
   const handleCategoryChange = (event) => {
@@ -233,6 +234,7 @@ const HomePage = ({onDataFiltered}) => {
 
 
   return (
+
     <Container maxWidth="sm" sx={{display: 'grid', gap: '35px'}}>
       {/*ИСпользован Select с Material UI*/}
       <Box sx={{ minWidth: 120 }}>
@@ -260,12 +262,12 @@ const HomePage = ({onDataFiltered}) => {
 
         <FormControl sx={{ m: 1, minWidth: 120  }}>
           <InputLabel id="demo-simple-select-autowidth-label">
-            *Скидка*
+            Категория
           </InputLabel>
           <Select
               labelId="demo-simple-select-autowidth-label"
               id="demo-simple-select-autowidth"
-              value={selectedDiscount}
+              value={selectedTag}
               onChange={handleDiscountChange}
               autoWidth
               label="Скидка"
@@ -274,8 +276,8 @@ const HomePage = ({onDataFiltered}) => {
               <em>None</em>
             </MenuItem>
             {filteredData.map((item) => (
-                <MenuItem key={item.id} value={item.dicsount_percent}>
-                  {item.dicsount_percent}%
+                <MenuItem key={item.id} value={item.tag}>
+                  {item.tag}
                 </MenuItem>
             ))}
           </Select>
@@ -309,30 +311,35 @@ const HomePage = ({onDataFiltered}) => {
           <form className="request_form">
             <input
                 onChange={(e) => onChangeForm(e)}
-                type="email"
-                name="email"
-                placeholder="E-mail"
+                type="text"
+                name="full_name"
+                placeholder="* Имя пользователя"
             />
             <input
                 onChange={(e) => onChangeForm(e)}
                 type="text"
-                name="full_name"
-                placeholder="Your fullname"
+                name="address"
+                placeholder="* Адрес"
             />
             <textarea
                 onChange={(e) => onChangeForm(e)}
                 name="message"
-                placeholder="enter a message"
+                placeholder="* Сообщене"
             ></textarea>
+            <input
+                onChange={(e) => onChangeForm(e)}
+                name="email"
+                placeholder="* Эл. почта"
+            ></input>
 
             <select
                 onChange={onChangeSelect.bind(this)}
-                name="service_id"
+                name="product_id"
             >
               {items.map((item) => {
                 return (
                     <option key={item.id} value={item.id}>
-                      {item.name}
+                      {item.id}{item.name}
                     </option>
                 );
               })}
@@ -383,14 +390,13 @@ const HomePage = ({onDataFiltered}) => {
                   <Grid  >
                     <ButtonBase sx={{ width: 128, height: 128 }}>
                       <Img
-                          src={item.image_url}
+                          src={item.preview_image}
                           alt={item.name}
-                          title={item.name}
+                          title={item.text}
                       />
                     </ButtonBase>
                   </Grid>
                   <Grid
-
                       className="service_card"
                       item xs={12}
                       sm container>
@@ -400,7 +406,7 @@ const HomePage = ({onDataFiltered}) => {
                           {item.name}
                         </Typography>
                         <Typography variant="body2" gutterBottom>
-                          {truncateText(item.content)}
+                          {truncateText(item.text)}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
                           ID: {item.id}
@@ -409,20 +415,20 @@ const HomePage = ({onDataFiltered}) => {
 
                       <Grid item>
                         <Typography sx={{ cursor: 'pointer' }} variant="body2">
-                          <NavLink to={`/articles/${item.id}`}>Перейти</NavLink>
+                          <NavLink to={`/articles/${item.id}`}>подробнее</NavLink>
                         </Typography>
                       </Grid>
                     </Grid>
 
                     <Grid item>
                       <Typography variant="subtitle1" component="div" sx={{display: 'grid' }}>
-                        {item.dicsount_percent > 0 ? (
+                        {item.discount > 0 ? (
                             <span className="price">
-                              <span style={{ textDecoration: 'line-through' }}>
+                              <span style={{ textDecoration: 'line-through', color: '#85828D'}}>
                                 {priceFormatter(item.price)}
                               </span>{' '}
                                 {priceFormatter(
-                                    item.price - (item.price * item.dicsount_percent) / 100
+                                    item.price - (item.price * item.discount) / 100
                                 )}
                             </span>
                         ) : (

@@ -1,8 +1,30 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
+  margin: 2rem auto;
   padding: 2rem;
   text-align: center;
+  background: #F5F5F5;
+  border-radius: 16px;
+  inset: 0;
+
+
+//- #F5F5F5 (светло-серый)
+//- #FFFFFF (белый)
+//- #F0F8FF (бледно-голубой)
+//- #E9ECEF (голубовато-серый)
+//- #EEF1F4 (серый с голубоватым оттенком)
+}
+
+.header_article{
+  margin: 0 auto;
+}
+
+.header_alert{
+  font-size: 14px;
+  margin-bottom: 40px;
+}
+
+.footer_article{
+  margin: 40px auto 0;
 }
 
 .logo {
@@ -31,6 +53,25 @@
     animation: logo-spin infinite 20s linear;
   }
 }
+@media screen and (max-width: 768px){
+  .modal-search{
+    display: grid!important;
+    justify-content: center!important;
+
+    input{
+      width: 100%;
+    }
+  }
+}
+.modal-search{
+  display: flex;
+  justify-content: space-between;
+
+  button{
+    width: auto;
+  }
+}
+
 
 .request_form{
   display: grid;
@@ -42,17 +83,14 @@
   }
 }
 
-.modal-search{
-  display: flex;
-  justify-content: space-between;
-}
+
 
 .container{
   display: grid;
 }
 
 .search{
-  border: none;
+  border: 1px solid rgba(0,0,0,0.3);
   border-radius: 5px;
   padding: 10px;
   font-size: 16px;
@@ -61,6 +99,8 @@
 
 .modal_window{
   color: rgb(84, 84, 84);
+
+
 
   .form_article{
     padding-bottom: 35px;
@@ -89,6 +129,7 @@
   .service_card{
     display: flex;
     text-align: left;
+    background: #fdfdfd;
 
     .price{
       display: grid;
