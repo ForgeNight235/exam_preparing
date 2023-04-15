@@ -20,11 +20,14 @@ import "../App.scss";
 import Modal from "@mui/material/Modal";
 import Button from "@mui/material/Button";
 
-import filteredItems from "../components/filteredItems.jsx";
+import Swal from 'sweetalert2/dist/sweetalert2.js'
+
+import 'sweetalert2/src/sweetalert2.scss'
 
 
-const HomePage = () => {
+const HomePage = ({onDataFiltered}) => {
   // Стейт массива услуг
+
   const [items, setItems] = useState([]);
 
   const [initialItems, setInitialItems] = useState([]);
@@ -107,7 +110,15 @@ const HomePage = () => {
   // Отправка заявки (POST)
   const send = (event) => {
     // Отмена перезагрузки страницы после отправки
+
     event.preventDefault();
+    Swal.fire({
+      position: 'top-end',
+      icon: 'success',
+      title: 'Your work has been saved',
+      showConfirmButton: false,
+      timer: 1500
+    })
 
     fetch("https://exam.avavion.ru/api/requests/create", {
       method: "POST",
@@ -157,11 +168,69 @@ const HomePage = () => {
   }, []);
 
   // Для фильтрации по *скидке*
-  const [age, setAge] = React.useState('');
+  const [price, setPrice] = React.useState('');
 
   const handleChange = (event) => {
-    setAge(event.target.value);
+    setPrice(event.target.value);
   };
+
+
+
+
+  const [data, setData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [selectedDiscount, setSelectedDiscount] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    // Фильтрация данных по выбранному проценту скидки и категории
+    let filtered = data;
+    if (selectedDiscount) {
+      filtered = filtered.filter(
+          (item) => item.discount_percent === selectedDiscount
+      );
+    }
+    if (selectedCategory) {
+      filtered = filtered.filter(
+          (item) => item.category === selectedCategory
+      );
+    }
+    setFilteredData(filtered);
+    // Передача отфильтрованных данных наверх через callback
+    onDataFiltered && onDataFiltered(filtered);
+  }, [selectedDiscount, selectedCategory, data, onDataFiltered]);
+
+  const fetchData = async () => {
+    try {
+      const response = await fetch("https://exam.avavion.ru/api/services");
+      const jsonData = await response.json();
+      setData(jsonData.data);
+      setFilteredData(jsonData.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleDiscountChange = (event) => {
+    setSelectedDiscount(event.target.value);
+  };
+
+  const handleCategoryChange = (event) => {
+    const category = event.target.value;
+    setSelectedCategory(category);
+
+    const filtered = data.filter((item) => item.category === category);
+    setFilteredData(filtered);
+  };
+
+
+
+
+
 
   return (
     <Container maxWidth="sm" sx={{display: 'grid', gap: '35px'}}>
@@ -185,10 +254,39 @@ const HomePage = () => {
             <MenuItem onClick={resetSort}>Сбросить</MenuItem>
           </Select>
         </FormControl>
+
+
+
+
+        <FormControl sx={{ m: 1, minWidth: 120  }}>
+          <InputLabel id="demo-simple-select-autowidth-label">
+            *Скидка*
+          </InputLabel>
+          <Select
+              labelId="demo-simple-select-autowidth-label"
+              id="demo-simple-select-autowidth"
+              value={selectedDiscount}
+              onChange={handleDiscountChange}
+              autoWidth
+              label="Скидка"
+          >
+            <MenuItem value="">
+              <em>None</em>
+            </MenuItem>
+            {filteredData.map((item) => (
+                <MenuItem key={item.id} value={item.dicsount_percent}>
+                  {item.dicsount_percent}%
+                </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+
+
+
       </Box>
 
       {/*Делаем фильтрацию по *скидке* , дизайн с MUI*/}
-      <filteredItems/>
 
 
 
@@ -337,13 +435,7 @@ const HomePage = () => {
                 </Grid>
               </Paper>
 
-              // <div key={item.id} className="item">
-              //   <img src={item.image_url} alt={item.name} />
-              //   <h2>{item.name}</h2>
-              //   <p>{item.content}</p>
-              //   <span>Цена {priceFormatter(item.price)}</span>
-              //   <NavLink to={`/articles/${item.id}`}>Перейти</NavLink>
-              // </div>
+
           ); // если не найдена, вывод сообщения
         }) : <h3>По запросу "{query}" ничего не найдено</h3>}
       </div>
